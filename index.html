@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotiflamme</title>
+    <link href="./style.css" rel="stylesheet">
+    <link href="./materialize/css/materialize.min.css" media="screen,projection">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <section class="contain">
+        <section class="container">
+            <section class="music-player">
+               
+                <section class="titre">
+                    <h3 id="titleListening"></h3>
+                    <h1 id="title"></h1>
+             
+                </section>
+                <section class="lecteur">
+                    <audio id="player" style="width: 100%;" class="fc-media">  </audio>
+                </section>
+         
+                <section id="settings">
+                    
+                    <p>Piste de recherche :</p>
+                    <section>
+                        <p id="currentTime"></p>
+                        <input id="position" type="range" min="0" max="100" onchange="onPosition(this.value)" class="w60">
+                        <p id="durationTime" ></p>
+                    </section>
+                    
+                    <p>Volume :</p>
+                    <img src="./images/volume.png" class="imageSize" />
+                    <input id="volume" type="range" min="0" max="100" onchange="onVolume(this.value)"> 
+                </section>
+                <section id="lesControles" >
+                    <button id="btnPlay" onclick="onPlay()"><img src="./images/play.png" class="imageSize"  /></button>
+                    <button id="btnPause" onclick="onPause()"><img src="./images/pause.png" class="imageSize"  /></button></button>
+
+                   
+                 <button onclick="onPrev()"><img src="./images/previous.png" class="imageSize"  /></button>
+                        <button onclick="onNext()"><img src="./images/next.png" class="imageSize"  /></button></button>
+                 
+
+                    <label for="ouvrir">  <img src="./images/ouvrir.png"  class="imageSize" />
+                    <input type="file" id="ouvrir" name="ouvrir" accept="audio/mp3" onchange=onOpen()>
+                </section>
+                
+            </section>
+        </section>
+            <h3 class="center white">Made by [Midnight Dev] a.k.a Yohann HUEDRÖ</h3>
+    </section>
+
+    <script type="text/javascript" src="./materialize/js/materialize.min.js"></script>
+    <script>
+
+
+          
+
+        /************************************************************/
+        var playlist = [];
+   
+        // Variables
+        var title = document.getElementById('title');
+   
+        var player = document.getElementById('player');
+        var volume = document.getElementById('volume');
+        var position = document.getElementById('position');
+        var currentTime = document.getElementById('currentTime');
+        var durationTime = document.getElementById('durationTime');
+
+        // Init
+     
+       var a=typeof(playlist);
+  
+       if (a.value===undefined){
+       // console.log("la chanson n'est pas définie ! --");
+        var b= document.getElementById("titleListening");
+        b.innerHTML="En attente de chargement..";
+        document.getElementById("btnPause").style.visibility='collapse';
+        document.getElementById("btnPlay").style.visibility='visible';
+       }
+        player.volume = volume.value / 100;
+        position.value = player.currentTime;
+
+        var i=0;
+         // Timer
+         setInterval(function () {
+            position.value = player.currentTime * (100 / player.duration);
+
+            var currentMinutes = Math.floor(player.currentTime / 60); 
+            var currentSeconds = Math.floor(player.currentTime - currentMinutes * 60); 
+            var durationMinutes = Math.floor(player.duration / 60); 
+            var durationSeconds = Math.floor(player.duration - durationMinutes * 60); 
+
+            if (currentSeconds < 10) currentSeconds = "0" + currentSeconds; 
+            if (durationSeconds < 10) durationSeconds = "0" + durationSeconds;
+            if (currentMinutes < 10) currentMinutes = "0" + currentMinutes;
+            if (durationMinutes < 10) durationMinutes = "0" + durationMinutes;
+
+            currentTime.innerText = currentMinutes + ":" + currentSeconds;
+            console.log(playlist[0].titre);
+            durationTime.innerText = durationMinutes + ":" + durationSeconds;
+        }, 1000);
+        function onPlay() {
+
+                if (playlist.length<1){
+                     console.log("la chanson n'est pas définie ! --");
+                     b.innerHTML="En attente de chargement..";
+
+                 }else{
+                    document.getElementById("btnPause").style.visibility='visible';
+                    document.getElementById("btnPlay").style.visibility='collapse';
+                    var b= document.getElementById("titleListening");
+                    b.innerHTML="Vous écoutez";
+                    player.play();
+                 }
+                 
+        }
+
+        function onPause() {
+            player.pause();
+            document.getElementById("titleListening").innerText="Lecture en pause";
+            document.getElementById("btnPause").style.visibility='hidden';
+            document.getElementById("btnPlay").style.visibility='visible';
+        }
+        
+        function onPrev(){
+
+            if (i === playlist.length + 1) {
+                    i = 0;
+                } else {
+                    if (i===0){
+                       i=playlist.length-1;
+                    }else{
+                        i--;
+                    }
+                   
+                }
+                console.log(i);
+
+
+                // Change the audio element source
+                player.src = playlist[i].source;
+                title.innerText=playlist[i].title;
+                player.play();
+        }
+
+        function onNext(){
+        
+                if (i === playlist.length - 1) {
+                    i = 0;
+                } else {
+                    i++;
+                }
+
+                // Change the audio element source
+                player.src = playlist[i].source;
+                title.innerText=playlist[i].title;
+        
+                player.play();
+        }
+
+
+        // Check if the player is selected
+        if (player === null) {
+            throw "La playlist n'existe pas ...";
+        } else {
+            // Start the player
+          // player.src = playlist[i].source;
+
+            // Listen for the music ended event, to play the next audio file
+            player.addEventListener('ended', onNext, false)
+        }
+
+        function onPosition(value) {
+            var currentTime = player.duration * (value / 100);
+            player.currentTime = currentTime;
+        }
+
+        function onVolume(value) {
+            player.volume = value / 100;
+        }
+
+      function onOpen(){
+        const selectedFile = document.getElementById('ouvrir').files[0];
+        
+      urlFile = document.getElementById("ouvrir").files[0].name; 
+       
+       urlFile="./musics/"+urlFile;
+       ajoute(selectedFile.name,urlFile);
+       document.getElementById("titleListening").innerText="Vous écoutez";
+      
+
+      }
+      //ajouter une chanson dans le tableau
+      function ajoute(titre,url){
+        playlist.push({
+            "title": titre,
+            "source": url,
+        });
+            
+        player.src = url;
+      
+        title.innerText = titre;
+        player.play();
+        document.getElementById("btnPause").style.visibility='visible';
+        document.getElementById("btnPlay").style.visibility='hidden';
+      }
+
+     
+    </script>
+    
+</body>
+</html>
