@@ -147,3 +147,12 @@ html {
     position: relative;
     LEFT: 12%;
 }
+
+.txtcenter{
+    text-align: center!important;
+}
+
+#linkPortfolio{
+    position: relative;
+    bottom: 6px;
+}
